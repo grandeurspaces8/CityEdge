@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 const PHONE = '01008900076'
 const WA_LINK = `https://wa.me/2${PHONE}/?text=أود الاستفسار عن مشاريع سيتي إيدج`
-const FORMSUBMIT_EMAIL = 'nada.abdelrahman@grandeur-spaces.com'
+const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/nada.abdelrahman@grandeur-spaces.com'
 
 const projects = [
   'Lush Valley - التجمع الخامس',
@@ -19,7 +19,7 @@ const projects = [
 
 export default function LeadForm({ sectionId }) {
   const [form, setForm] = useState({ name: '', phone: '', project: '' })
-  const [status, setStatus] = useState(null) // null | 'loading' | 'success' | 'error'
+  const [status, setStatus] = useState(null)
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -30,7 +30,7 @@ export default function LeadForm({ sectionId }) {
     setStatus('loading')
 
     try {
-      const res = await fetch(`https://formsubmit.co/ajax/${FORMSUBMIT_EMAIL}`, {
+      const res = await fetch(FORMSUBMIT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,11 +52,9 @@ export default function LeadForm({ sectionId }) {
         setStatus('success')
         setForm({ name: '', phone: '', project: '' })
       } else {
-        console.error('FormSubmit error:', data)
         setStatus('error')
       }
     } catch (err) {
-      console.error('Submit error:', err)
       setStatus('error')
     }
   }
@@ -70,7 +68,7 @@ export default function LeadForm({ sectionId }) {
       <div className="lead-form">
         {status === 'success' ? (
           <div className="form-success">
-            ✅ تم استلام بياناتك بنجاح!
+            تم استلام بياناتك بنجاح!
             <br />
             <span style={{ fontSize: 14, color: '#aaa', fontWeight: 400 }}>
               سيتواصل معك فريق المبيعات قريباً
@@ -109,12 +107,16 @@ export default function LeadForm({ sectionId }) {
                 ))}
               </select>
             </div>
-            <button type="submit" className="btn-submit" disabled={status === 'loading'}>
+            <button
+              type="submit"
+              className="btn-submit"
+              disabled={status === 'loading'}
+            >
               {status === 'loading' ? 'جاري الإرسال...' : 'تسجيل'}
             </button>
             {status === 'error' && (
               <p className="form-error">
-                ⚠️ حدث خطأ في الإرسال، يرجى المحاولة مرة أخرى أو الاتصال بنا مباشرة
+                حدث خطأ، يرجى المحاولة مرة أخرى أو اتصل بنا مباشرة
               </p>
             )}
           </form>
@@ -122,8 +124,8 @@ export default function LeadForm({ sectionId }) {
       </div>
 
       <div style={{ textAlign: 'center', marginTop: 30, display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-        <a href={`tel:${PHONE}`} className="btn-call">📞 اتصل بنا: {PHONE}</a>
-        <a href={WA_LINK} target="_blank" rel="noreferrer" className="btn-whatsapp">💬 واتساب</a>
+        <a href={`tel:${PHONE}`} className="btn-call">اتصل بنا: {PHONE}</a>
+        <a href={WA_LINK} target="_blank" rel="noreferrer" className="btn-whatsapp">واتساب</a>
       </div>
     </section>
   )

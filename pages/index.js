@@ -151,7 +151,7 @@ export default function Home() {
           <h2 className="section-title">أبراج العلمين الجديدة</h2>
           <div className="project-card">
             <img
-              src="https://cityedgedevelopment.net/wp-content/uploads/2024/08/460b1666979917.5b2996daefd3b.png"
+              src="/alamein-towers.jpeg"
               alt="أبراج العلمين الجديدة"
             />
             <div className="project-card-body">
