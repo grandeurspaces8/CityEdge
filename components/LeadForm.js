@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 const PHONE = '01008900076'
 const WA_LINK = `https://wa.me/2${PHONE}/?text=أود الاستفسار عن مشاريع سيتي إيدج`
+const FORMSUBMIT_EMAIL = 'nada.abdelrahman@grandeur-spaces.com'
 
 const projects = [
   'Lush Valley - التجمع الخامس',
@@ -29,20 +30,34 @@ export default function LeadForm({ sectionId }) {
     setStatus('loading')
 
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch(`https://formsubmit.co/ajax/${FORMSUBMIT_EMAIL}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          phone: form.phone,
+          project: form.project || 'لم يحدد',
+          _subject: `ليد جديد - سيتي إيدج | ${form.name} - ${form.phone}`,
+          _template: 'table',
+          _captcha: 'false',
+        }),
       })
+
       const data = await res.json()
-      if (res.ok) {
+
+      if (data.success === 'true' || data.success === true) {
         setStatus('success')
         setForm({ name: '', phone: '', project: '' })
       } else {
-        setStatus(data.message || 'حدث خطأ، يرجى المحاولة مرة أخرى')
+        console.error('FormSubmit error:', data)
+        setStatus('error')
       }
     } catch (err) {
-      setStatus('تعذّر الاتصال بالسيرفر، تحقق من الاتصال')
+      console.error('Submit error:', err)
+      setStatus('error')
     }
   }
 
@@ -97,8 +112,10 @@ export default function LeadForm({ sectionId }) {
             <button type="submit" className="btn-submit" disabled={status === 'loading'}>
               {status === 'loading' ? 'جاري الإرسال...' : 'تسجيل'}
             </button>
-            {status && status !== 'loading' && status !== 'success' && (
-              <p className="form-error">⚠️ {status}</p>
+            {status === 'error' && (
+              <p className="form-error">
+                ⚠️ حدث خطأ في الإرسال، يرجى المحاولة مرة أخرى أو الاتصال بنا مباشرة
+              </p>
             )}
           </form>
         )}
