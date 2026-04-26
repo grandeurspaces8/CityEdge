@@ -1,8 +1,5 @@
-// ✅ Uses FormSubmit.co via JSON
-// IMPORTANT: First time only — FormSubmit will send a confirmation email
-// to nada.abdelrahman@grandeur-spaces.com → click "Confirm" once → done forever.
-
-const FORMSUBMIT_EMAIL = 'nada.abdelrahman@grandeur-spaces.com'
+// ✅ Uses Web3Forms — reliable, no activation needed
+const WEB3FORMS_KEY = '968c2808-d4bd-482c-a72e-6489a307d7d7'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -16,50 +13,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    const payload = {
-      name,
-      phone,
-      project: project || 'لم يحدد',
-      _subject: `ليد جديد - سيتي إيدج | ${name} - ${phone}`,
-      _template: 'table',
-      _captcha: 'false',
-    }
+    const response = await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: `ليد جديد - سيتي إيدج | ${name} - ${phone}`,
+        from_name: 'سيتي إيدج - موقع العقارات',
+        name,
+        phone,
+        project: project || 'لم يحدد',
+      }),
+    })
 
-    const response = await fetch(
-      `https://formsubmit.co/ajax/${FORMSUBMIT_EMAIL}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify(payload),
-      }
-    )
+    const data = await response.json()
+    console.log('Web3Forms response:', data)
 
-    const text = await response.text()
-    console.log('FormSubmit raw response:', text)
-
-    let data
-    try {
-      data = JSON.parse(text)
-    } catch {
-      // FormSubmit sometimes returns non-JSON on first activation
-      // treat any 200 response as success
-      if (response.ok) {
-        return res.status(200).json({ message: 'تم إرسال بياناتك بنجاح' })
-      }
-      throw new Error('Non-JSON response: ' + text)
-    }
-
-    if (
-      data.success === 'true' ||
-      data.success === true ||
-      response.ok
-    ) {
+    if (data.success) {
       return res.status(200).json({ message: 'تم إرسال بياناتك بنجاح' })
     } else {
-      console.error('FormSubmit error response:', data)
+      console.error('Web3Forms error:', data)
       return res.status(500).json({ message: 'حدث خطأ: ' + (data.message || 'unknown') })
     }
   } catch (error) {
