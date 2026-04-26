@@ -39,10 +39,10 @@ export default function LeadForm({ sectionId }) {
         setStatus('success')
         setForm({ name: '', phone: '', project: '' })
       } else {
-        setStatus('error')
+        setStatus(data.message || 'حدث خطأ، يرجى المحاولة مرة أخرى')
       }
-    } catch {
-      setStatus('error')
+    } catch (err) {
+      setStatus('تعذّر الاتصال بالسيرفر، تحقق من الاتصال')
     }
   }
 
@@ -97,8 +97,8 @@ export default function LeadForm({ sectionId }) {
             <button type="submit" className="btn-submit" disabled={status === 'loading'}>
               {status === 'loading' ? 'جاري الإرسال...' : 'تسجيل'}
             </button>
-            {status === 'error' && (
-              <p className="form-error">حدث خطأ، يرجى المحاولة مرة أخرى أو الاتصال بنا مباشرة</p>
+            {status && status !== 'loading' && status !== 'success' && (
+              <p className="form-error">⚠️ {status}</p>
             )}
           </form>
         )}

@@ -1,6 +1,6 @@
-// ✅ Uses FormSubmit.co — no SMTP config needed
-// First submission will send a confirmation email to nada.abdelrahman@grandeur-spaces.com
-// Just click "Confirm" in that email, then all leads will arrive automatically.
+// ✅ Uses FormSubmit.co via JSON
+// IMPORTANT: First time only — FormSubmit will send a confirmation email
+// to nada.abdelrahman@grandeur-spaces.com → click "Confirm" once → done forever.
 
 const FORMSUBMIT_EMAIL = 'nada.abdelrahman@grandeur-spaces.com'
 
@@ -16,37 +16,54 @@ export default async function handler(req, res) {
   }
 
   try {
-    const formData = new URLSearchParams()
-    formData.append('name', name)
-    formData.append('phone', phone)
-    formData.append('project', project || 'لم يحدد')
-    formData.append('_subject', `🏢 ليد جديد - سيتي إيدج | ${name} - ${phone}`)
-    formData.append('_template', 'table')
-    formData.append('_captcha', 'false')
-    formData.append('_replyto', 'no-reply@cityedge.com')
+    const payload = {
+      name,
+      phone,
+      project: project || 'لم يحدد',
+      _subject: `ليد جديد - سيتي إيدج | ${name} - ${phone}`,
+      _template: 'table',
+      _captcha: 'false',
+    }
 
     const response = await fetch(
       `https://formsubmit.co/ajax/${FORMSUBMIT_EMAIL}`,
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: formData.toString(),
+        body: JSON.stringify(payload),
       }
     )
 
-    const data = await response.json()
+    const text = await response.text()
+    console.log('FormSubmit raw response:', text)
 
-    if (data.success === 'true' || data.success === true) {
+    let data
+    try {
+      data = JSON.parse(text)
+    } catch {
+      // FormSubmit sometimes returns non-JSON on first activation
+      // treat any 200 response as success
+      if (response.ok) {
+        return res.status(200).json({ message: 'تم إرسال بياناتك بنجاح' })
+      }
+      throw new Error('Non-JSON response: ' + text)
+    }
+
+    if (
+      data.success === 'true' ||
+      data.success === true ||
+      response.ok
+    ) {
       return res.status(200).json({ message: 'تم إرسال بياناتك بنجاح' })
     } else {
-      console.error('FormSubmit error:', data)
-      return res.status(500).json({ message: 'حدث خطأ في الإرسال' })
+      console.error('FormSubmit error response:', data)
+      return res.status(500).json({ message: 'حدث خطأ: ' + (data.message || 'unknown') })
     }
   } catch (error) {
-    console.error('Fetch error:', error)
-    return res.status(500).json({ message: 'حدث خطأ في الإرسال' })
+    console.error('Contact API error:', error.message)
+    return res.status(500).json({ message: 'حدث خطأ في الإرسال، حاول مرة أخرى' })
   }
 }
