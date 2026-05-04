@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const PHONE = '01008900076'
+const PHONE = '01038666566'
 const WA_LINK = `https://wa.me/2${PHONE}/?text=أود الاستفسار عن مشاريع سيتي إيدج`
 const FORMSUBMIT_URL = 'https://formsubmit.co/ajax/nada.abdelrahman@grandeur-spaces.com'
 

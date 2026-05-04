@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import LeadForm from '../components/LeadForm'
 
-const PHONE = '01008900076'
+const PHONE = '01038666566'
 const WA_LINK = `https://wa.me/2${PHONE}/?text=أود الاستفسار عن مشاريع سيتي إيدج`
 
 function CtaRow() {
